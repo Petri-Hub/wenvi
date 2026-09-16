@@ -1,299 +1,114 @@
-<div align="center">
-  <h1>🌄 Wenvi</h1>
-  <p><b>Wenvi is a simple CLI to organize and manage .env files in whitelabel applications</b></p>
-
-  ![GitHub package.json version](https://img.shields.io/github/package-json/v/Petri-Hub/Wenvi)
-  ![NPM Version](https://img.shields.io/npm/v/wenvi)
-  ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Petri-Hub/Wenvi/deploy.yml)
-  ![GitHub top language](https://img.shields.io/github/languages/top/Petri-Hub/Wenvi)
-  ![GitHub commit activity](https://img.shields.io/github/commit-activity/t/Petri-Hub/Wenvi)
-</div>
+<h1 align="center">🌄 wenvi</h1>
 
 <br>
-<h2>Table of Contents</h2>
 
-- [About](#About)
-- [Glossary](#Glossary)
-- [Features](#Features)
-- [Showcase](#Showcase)
-- [Installation](#Installation)
-- [Quick Start](#QuickStart)
-- [Commands](#Commands)
-- [License](#License)
+<h3 align="center">A CLI to organize and quickly switch .env files.<br>Built for whitelabel apps, where every client has its own environments</h3>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/wenvi"><img alt="npm" src="https://img.shields.io/npm/v/wenvi?logo=npm" /></a> <img alt="Top language" src="https://img.shields.io/github/languages/top/Petri-Hub/wenvi" /> <a href="https://github.com/Petri-Hub/wenvi/commits/production"><img alt="Last commit" src="https://img.shields.io/github/last-commit/Petri-Hub/wenvi/production" /></a>
+</p>
 
 <br>
-<h2 id="About">About</h2>
 
-Wenvi is a Node.js CLI tool written in TypeScript designed to manage `.env` files in whitelabel applications. It simplifies the process of handling environment variables across different subjects and environments, making it easier to manage configurations for various deployments.
+## About
 
-<br>
-<h2 id="Glossary">Glossary</h2>
+> **TL;DR:** in a whitelabel app the same code ships for several clients, and each one needs its own `.env` for development, production and whatever else. Wenvi keeps them in an `environments/` folder inside the project, organized by subject (usually the client) and environment, and swaps the active `.env` with one command.
 
-- **Subject:** The entity that requires its own set of environments, in most cases, a company you're working for.
-- **Environment:** A collection of variables that represents a stage of deployment such as development or production.
+<table>
+  <tr>
+    <td width="40%"><img src="assets/list.png" alt="wenvi list, showing subjects acme, hooli and wonka with their environments" /></td>
+    <td width="60%"><img src="assets/table.png" alt="wenvi table, comparing which subject has which environment" /></td>
+  </tr>
+</table>
 
-<br>
-<h2 id="Features">Features</h2>
+## Why it exists
 
-- Create, delete and list subjects and environments.
-- Open subjects and environments in your favorite editor.
-- Validate all your environments variables with an example file.
-- Display subjects and environments in a friendly table format.
-- Quickly switch your current environment.
-- Export and import subjects and environments.
+At Globals I worked on a whitelabel banking app, where every client carried dozens of settings of its own for each environment. Keeping those `.env` files in line by hand was the painful part, so a month after joining I started building a tool for it. The name is literal: **w** for whitelabel, **env** for environment. It took 180 commits between December 2024 and January 2025, and ended up published on npm.
 
-<br>
-<h2 id="Showcase">Showcase</h2>
+## How it's organized
 
-Curious in how to use it? Check out this [introduction post about Wenvi!]()
+Each subject gets a folder inside `environments/`, and each environment is a `.env.<name>` file in it. The `.env` at the root is the one your app reads, and `wenvi use` replaces it with the chosen environment.
 
-<br>
-<h2 id="Installation">Installation</h2>
+```sh
+my-app
+├── .env                    # the active environment
+└── environments
+    ├── .env.example        # the keys every environment must have
+    ├── acme
+    │   ├── .env.development
+    │   ├── .env.production
+    │   └── .env.staging
+    ├── hooli
+    │   ├── .env.development
+    │   └── .env.production
+    └── wonka
+        └── .env.development
+```
 
-To install Wenvi, you need to have **Node.js** and **npm** installed on your machine. Then, run the following npm command:
+<p align="center">
+  <img src="assets/use.png" width="485" alt="wenvi use hooli production, then wenvi current printing the active variables" />
+</p>
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `init` | Creates the `environments/` folder in the project |
+| `create` | Creates a subject, or an environment inside one |
+| `use` | Replaces the current `.env` with the chosen environment |
+| `current` | Shows which environment is in use |
+| `list` · `table` | Lists subjects and environments, or compares them in a table |
+| `view` · `copy` · `open` | Prints an environment, copies it to the clipboard or opens it in the editor |
+| `update` · `update-key` | Replaces an environment's variables, or a single key |
+| `get-key` · `delete-key` | Reads or removes a single key |
+| `delete` | Deletes a subject or an environment |
+| `example` · `validate` | Sets up a `.env.example` and checks every environment against it |
+| `export` · `import` | Saves every subject and environment into a password-encrypted file, and loads it back |
+| `version` · `upgrade` · `docs` · `help` | Housekeeping |
+
+With a `.env.example` in place, `validate` checks every environment against it:
+
+<p align="center">
+  <img src="assets/validate.png" width="674" alt="wenvi validate, with wonka development missing THEME_COLOR and hooli production carrying an extra LEGACY_FLAG" />
+</p>
+
+## What's inside
+
+```sh
+├── .github           # publishes to npm on every push to production
+├── environments      # a sample repository with two companies, as wenvi lays it out
+└── src
+    ├── commands      # one class per command
+    ├── constants     # error codes and messages
+    ├── core          # the CLI entry point, command factory and registries
+    ├── errors        # one error class per failure
+    ├── helpers       # text colouring
+    ├── interfaces    # command and repository contracts
+    ├── logging       # console output
+    ├── resources     # the local file repository behind every command
+    └── types         # shared types
+```
+
+## Technologies
+
+<table align="center">
+  <tr>
+    <td align="center" width="96"><img src="https://cdn.simpleicons.org/typescript" width="48" height="48" alt="TypeScript" /><br>TypeScript</td>
+    <td align="center" width="96"><img src="https://cdn.simpleicons.org/nodedotjs" width="48" height="48" alt="Node.js" /><br>Node.js</td>
+    <td align="center" width="96"><img src="https://cdn.simpleicons.org/npm" width="48" height="48" alt="npm" /><br>npm</td>
+    <td align="center" width="96"><img src="https://github.com/chalk.png?size=96" width="48" height="48" alt="chalk" /><br>chalk</td>
+    <td align="center" width="96"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-original.svg" width="48" height="48" alt="GitHub Actions" /><br>GitHub Actions</td>
+    <td align="center" width="96"><img src="https://cdn.simpleicons.org/prettier" width="48" height="48" alt="Prettier" /><br>Prettier</td>
+  </tr>
+</table>
+
+## Installing
+
+It's published on [npm](https://www.npmjs.com/package/wenvi). Install it globally, then run it from the root of a project:
 
 ```sh
 npm install -g wenvi
-```
-
-<br>
-<h2 id="QuickStart">Quick Start</h2>
-
-1. Open a terminal in your project root.
-
-2. Initialize your Wenvi repository with:
-
-```sh
 wenvi init
-```
-
-3. Create your first environment
-
-```sh
 wenvi create company-a development
-```
-
-4. Use your first environment
-
-```sh
 wenvi use company-a development
 ```
-
-5. Enjoy!
-
-<br>
-<h2 id="Commands">Commands</h2>
-
-<h3 id="command_init">init</h3>
-
-Creates the repository folder where the subjects and environments are going to be stored.
-
-- **Usage**: 
-  - `wenvi init`
-
-<br>
-<h3 id="command_create">create</h3>
-
-Creates a subject or environment.
-
-- **Usage**:
-  - `wenvi create <subject>`
-  - `wenvi create <subject> <environment>`
-  - `wenvi create <subject> <environment> <variables>"`
-- **Example**: 
-  - `wenvi create company-a`
-  - `wenvi create company-a development`
-  - `wenvi create company-a development "SECRET=123..."`
-
-<br>
-<h3 id="command_list">list</h3>
-
-Lists all the registered subjects and their environments.
-
-- **Usage**: 
-  - `wenvi list`
-  - `wenvi list <subject-1> <subject-2> ...`
-- **Example**:
-  - `wenvi list`
-  - `wenvi list company-a company-b`
-
-<br>
-<h3 id="command_use">use</h3>
-
-Switch your current .env file with the selected environment.
-
-- **Usage**: 
-  - `wenvi use <subject> <environment>`
-- **Example**: 
-  - `wenvi use company-a production`
-
-<br>
-<h3 id="command_current">current</h3>
-
-See the environment you're currently using.
-
-- **Usage**: 
-  - `wenvi current`
-
-<br>
-<h3 id="command_copy">copy</h3>
-
-Copy the variables of an environment file to your clipboard.
-
-- **Usage**: 
-  - `wenvi copy <subject> <environment>`
-- **Example**: 
-  - `wenvi copy company-a production`
-
-<br>
-<h3 id="command_view">view</h3>
-
-Outputs environment variables into the console.
-
-- **Usage**: 
-  - `wenvi view <subject> <environment>`
-- **Example**: 
-  - `wenvi view company-a production`
-
-<br>
-<h3 id="command_open">open</h3>
-
-Opens an environment with your default text editor.
-
-- **Usage**: 
-  - `wenvi open <subject> <environment>`
-- **Example**: 
-  - `wenvi open company-a production`
-
-<br>
-<h3 id="command_update">update</h3>
-
-Updates an environment with new variables.
-
-- **Usage**: 
-  - `wenvi update <subject> <environment> <variables>`
-- **Example**: 
-  - `wenvi update company-a dev "SECRET=123..."`
-
-<br>
-<h3 id="command_update-key">update-key</h3>
-
-Updates an environment key with a new value.
-
-- **Usage**: 
-  - `wenvi update-key <subject> <environment> <key> <value>`
-- **Example**: 
-  - `wenvi update-key company-a dev SECRET 123`
-
-<br>
-<h3 id="command_delete">delete</h3>
-
-Deletes a subject or environment.
-
-- **Usage**: 
-  - `wenvi delete <subject>`
-  - `wenvi delete <subject> <environment>`
-- **Example**: 
-  - `wenvi delete company-a`
-  - `wenvi delete company-a production`
-
-<br>
-<h3 id="command_get-key">get-key</h3>
-
-Returns the value of a key in an environment.
-
-- **Usage**: 
-  - `wenvi get-key <subject> <environment> <key>`
-- **Example**: 
-  - `wenvi get-key company-a production SECRET`
-
-<br>
-<h3 id="command_delete-key">delete-key</h3>
-
-Deletes a key of an environment.
-
-- **Usage**: 
-  - `wenvi delete-key <subject> <environment> <key>`
-- **Example**: 
-  - `wenvi delete-key company-a production SECRET`
-
-<br>
-<h3 id="command_table">table</h3>
-
-Shows a table that compares which subject has which environment.
-
-- **Usage**: 
-  - `wenvi table`
-  - `wenvi table <subject-1> <subject-2> ...`
-- **Example**: 
-  - `wenvi table`
-  - `wenvi table company-a company-b`
-
-<br>
-<h3 id="command_example">example</h3>
-
-Setups the .env.example file that allows environments validation.
-
-- **Usage**: 
-  - `wenvi example`
-
-<br>
-<h3 id="command_export">export</h3>
-
-Export all your subjects and environments into a local file.
-
-- **Usage**: 
-  - `wenvi export`
-
-<br>
-<h3 id="command_import">import</h3>
-
-Import an exported Wenvi configuration.
-
-- **Usage**: 
-  - `wenvi import`
-
-<br>
-<h3 id="command_validate">validate</h3>
-
-Validates all your environments following the .env.example file structure.
-
-- **Usage**: 
-  - `wenvi validate`
-
-<br>
-<h3 id="command_version">version</h3>
-
-Outputs the current Wenvi version installed.
-
-- **Usage**: 
-  - `wenvi version`
-
-<br>
-<h3 id="command_upgrade">upgrade</h3>
-
-Upgrades the Wenvi CLI to the latest version.
-
-- **Usage**: 
-  - `wenvi upgrade`
-
-<br>
-<h3 id="command_docs">docs</h3>
-
-Open the Wenvi documentation in your browser.
-
-- **Usage**: 
-  - `wenvi docs`
-
-<br>
-<h3 id="command_help">help</h3>
-
-Outputs the available Wenvi commands.
-
-- **Usage**: 
-  - `wenvi help`
-
-<br>
-<h2 id="License">License</h2>
-
-This project is licensed under the MIT License.
